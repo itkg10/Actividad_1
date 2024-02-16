@@ -9,7 +9,8 @@
 .cseg	
 .org 0x00
 .def temp = r16
-
+.def repeat=r17
+.def counter=r18
 
 ;Main program
 	;Stack init
