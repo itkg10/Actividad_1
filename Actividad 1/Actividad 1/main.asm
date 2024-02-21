@@ -2,7 +2,7 @@
 ; Actividad 1.asm
 ;
 ; Created: 14/02/2024 12:42:03 a. m.
-; Author : Uriel Huerta, Axel Vallejo, Giovani Orozco
+; Author : Uriel Huerta, Axel Vallejo, Giovanny Orozco
 ;Programa para generar 4 diferentes señales con frecuencias distintas
 ;dependiendo de los estados de entrada
 
