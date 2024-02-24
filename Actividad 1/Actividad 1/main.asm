@@ -23,47 +23,133 @@
 ;Port configuration
 	lds temp,0b00100000 ; PB5->output // input->PB4 y PB3 (por posicion de 0's y 1's) 
 	sts DDRB,temp 
-	sbi PORTB,PB4 ;activa la resistencia de pull-up en puerto 4
-	sbi PORTB,PB3 ;activa la resistencia de pull-up en puerto 3 
-;PORTB coloca el puerto en modo escritura
-;En estos momentos ambos puertos estarían con un 1 lógico
 	
 ;Inicializar el TIMER1 de 16 bits Pagina 123 datasheet
-	lds r17,0xFF ; Byte más alto de 0xFFFF
-	lds r16,0xFF ; Byte más bajo de 0xFFFF
-	sts TCNT1H,R17 
-	sts TCNT1L,R16
+	lds repeat,0xFF ; Byte más alto de 0xFFFF
+	lds temp,0xFF ; Byte más bajo de 0xFFFF
+	sts TCNT1H,repeat
+	sts TCNT1L,temp
 
 ;Configurar el modo de operación del Timer1
-	lds r17,0x00 ; Modo Normal
-	sts TCCR1B,R17
+	lds repeat,0x00 ; Modo Normal
+	sts TCCR1B,repeat
 
 ;Configurar el prescaler
-	lds r17,0x05 ; Prescaler de 1024
-	sts TCCR1B,R17
+	lds repeat,0x05 ; Prescaler de 1024
+	sts TCCR1B,repeat
 
 ;Habilitar la interrupción del Timer1
-	lds r17,0x01 ; Habilitar interrupción TOIE1
-	sts TIMSK1,R17
+	lds repeat,0x01 ; Habilitar interrupción TOIE1
+	sts TIMSK1,repeat
 
 ;Subrutinas
+
+  in temp,PINB
+	cpi temp,0b00000000
+	breq entrada_00
+
+	in temp,PINB
+	cpi temp,0b00000001
+	breq entrada_01
+
+	in temp,PINB
+	cpi temp,0b00000010
+	breq entrada_10
+
+	in temp,PINB
+	cpi temp,0b00000011
+	breq entrada_11
+
+	rjmp start
+
+
 entrada_00:
-	in temp,PB3
-	andi temp,0b00000000 ;verifica si está en ceros
-	brne freq1 ;si está en 00 salta a la frecuencia 1 
-	cbi PORTB,PB3
+	sbi PORTB,PB5
+	rcall delay1
+	cbi PORTB,PB5
+	rcall delay1
+	rjmp start
+
+delay1: 
+	ldi temp,0
+	ldi repeat,0
+	sts	TCNT1H,repeat
+	sts TCNT1L,temp
+
+ciclo1:
+	lds temp,TCNT1L
+	cpi temp,0x12
+	brne ciclo1
+	lds repeat,TCNT1H
+	cpi repeat,0x7A
+	brne ciclo1
+	ret 
+
+entrada_01:
+  sbi PORTB,PB5
+	rcall delay2
+	cbi PORTB,PB5
+	rcall delay2
+	rjmp start
+
+delay2: 
+	ldi temp,0
+	ldi repeat,0
+	sts	TCNT1H,repeat
+	sts TCNT1L,temp
+
+ciclo2:
+	lds temp,TCNT1L
+	cpi temp,0xD4
+	brne ciclo2
+	lds repeat,TCNT1H
+	cpi repeat,0x30
+	brne ciclo2
+	ret 
+
+
+entrada_10:
+	sbi PORTB,PB5
+	rcall delay3
+	cbi PORTB,PB5
+	rcall delay3
+	rjmp start
+
+delay3: 
+	ldi temp,0
+	ldi repeat,0
+	sts	TCNT1H,repeat
+	sts TCNT1L,temp
+
+ciclo3:
+	lds temp,TCNT1L
+	cpi temp,0x70
+	brne ciclo3
+	lds repeat,TCNT1H
+	cpi repeat,0x02
+	brne ciclo3
+	ret
 
 entrada_11:
-	in temp,PB3
-	andi temp,0b00001100 ;verifica si está en ceros
-	brne freq4 ;si está en 4 salta a la frecuencia 4 
-	cbi PORTB,PB3
+	sbi PORTB,PB5
+	rcall delay4
+	cbi PORTB,PB5
+	rcall delay4
+	rjmp start
 
-freq1:
-	sbi PORTB,PB3
-	rjmp entrada_00
+delay4: 
+	ldi temp,0
+	ldi repeat,0
+	sts	TCNT1H,repeat
+	sts TCNT1L,temp
 
-freq4:
-	sbi PORTB,PB3
-	rjmp entrada_11
+ciclo4:
+	lds temp,TCNT1L
+	cpi temp,0x03
+	brne ciclo4
+	lds repeat,TCNT1H
+	cpi repeat,0x00
+	brne ciclo4
+	ret 
+
 
